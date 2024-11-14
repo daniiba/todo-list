@@ -3,6 +3,8 @@ import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Trash2 } from "lucide-react"
 
 type TodoItem = {
     checked: boolean;
@@ -47,11 +49,18 @@ export default function TodoList() {
         })
     }
 
+    const handleDelete = (index: number) => {
+        setItems(prev => prev.filter((_, i) => i !== index))
+    }
+
     useEffect(() => {
         if (items.length > 0) {
             const stringData = JSON.stringify(items)
             const newUrl = `${window.location.pathname}?data=${stringData}`
             window.history.pushState({}, '', newUrl)
+        } else {
+            // Clear URL when no items
+            window.history.pushState({}, '', window.location.pathname)
         }
     }, [items])
 
@@ -60,34 +69,43 @@ export default function TodoList() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-6">Todo List</h1>
+        <div className="max-w-xl mx-auto p-6">
+            <h1 className="text-3xl font-bold text-center mb-8">Todo List</h1>
             
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {items.map((item, index) => (
-                    <Card key={index} className="flex space-x-2 p-4">
+                    <Card key={index} className="flex items-start gap-4 p-4 hover:shadow-md transition-shadow">
                         <Checkbox 
                             checked={item.checked} 
                             onCheckedChange={(checked) => handleChangeChecked(checked as boolean, index)}
+                            className="mt-2"
                         />
                         <Textarea
                             value={item.text}
                             onChange={(e) => handleChangeText(e.target.value, index)}
-                            className="min-h-[2.5rem] resize-y"
+                            className="flex-1 resize-none border-none focus:ring-0 p-1"
                         />
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(index)}
+                            className="mt-1 text-gray-500 hover:text-red-500"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
                     </Card>
                 ))}
             </div>
 
             <div className="mt-6">
-                <Card className="flex space-x-2 p-4">
-                    <Checkbox checked={false} disabled />
+                <Card className="flex items-start gap-4 p-4 hover:shadow-md transition-shadow">
+                    <Checkbox checked={false} disabled className="mt-2 opacity-50" />
                     <Textarea
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Add new todo (press Enter)"
-                        className="min-h-[2.5rem] resize-y"
+                        className="flex-1 resize-none border-none focus:ring-0 p-1"
                     />
                 </Card>
             </div>
